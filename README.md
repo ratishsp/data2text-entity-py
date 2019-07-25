@@ -1,7 +1,7 @@
 
 # data2text-entity-py
 
-This repo contains code for Data-to-text Generation with Entity Modeling (Puduppully, R., Dong, L., & Lapata, M.; ACL 2019); this code is based on an earlier release (0.1) of [OpenNMT-py](https://github.com/OpenNMT/OpenNMT-py/tree/v0.1). The Pytorch version is 0.3.1.
+This repo contains code for [Data-to-text Generation with Entity Modeling](https://www.aclweb.org/anthology/P19-1195) (Puduppully, R., Dong, L., & Lapata, M.; ACL 2019); this code is based on an earlier release (0.1) of [OpenNMT-py](https://github.com/OpenNMT/OpenNMT-py/tree/v0.1). The Pytorch version is 0.3.1.
 
 ## Requirements
 
@@ -16,7 +16,7 @@ The path to Pytorch wheel in ```requirements.txt``` is configured with CUDA 8.0.
 
 ## MLB
 The code for training with MLB dataset will be soon available on branch ```mlb```.
-The MLB dataset will also be uploaded soon.
+Scripts to create the MLB dataset are available at [mlb-data-scripts](https://github.com/ratishsp/mlb-data-scripts).
 
 ## Dataset
 
