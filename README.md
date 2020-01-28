@@ -15,7 +15,7 @@ The path to Pytorch wheel in ```requirements.txt``` is configured with CUDA 8.0.
 
 
 ## MLB
-The code for training with MLB dataset will be soon available on branch ```mlb```.
+The code for training with MLB dataset ~~will be soon~~ is available on branch ```mlb```.
 Scripts to create the MLB dataset are available at [mlb-data-scripts](https://github.com/ratishsp/mlb-data-scripts).
 
 ## Dataset
