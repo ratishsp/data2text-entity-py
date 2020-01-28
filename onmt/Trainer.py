@@ -225,8 +225,7 @@ class Trainer(object):
             outputs, attns, _ = self.model(src, tgt, src_lengths,
                                            entities_list=batch.entities_list,
                                            entities_len=batch.entities_len,
-                                           count_entities=batch.count_entities,
-                                           total_entities_list=batch.total_entities_list)
+                                           count_entities=batch.count_entities)
 
             # Compute loss.
             batch_stats = self.valid_loss.monolithic_compute_loss(
@@ -309,8 +308,7 @@ class Trainer(object):
                 outputs, attns, dec_state = self.model(src, tgt, src_lengths, dec_state,
                                                        entities_list=batch.entities_list,
                                                        entities_len=batch.entities_len,
-                                                       count_entities=batch.count_entities,
-                                                       total_entities_list=batch.total_entities_list)
+                                                       count_entities=batch.count_entities)
 
                 # 3. Compute loss in shards for memory efficiency.
                 batch_stats = self.train_loss.sharded_compute_loss(

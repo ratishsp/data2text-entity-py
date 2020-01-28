@@ -181,18 +181,14 @@ class TextDataset(ONMTDatasetBase):
                     TextDataset.extract_text_features(line)
 
                 if side == "src":
-                    entities_len = [22] * 26
-                    entities_len.extend([15, 15])
-                    entities_list = []
-                    for entities_index in range(0, 28):
-                        if entities_index < 26:
-                            entities_list.extend([entities_index] * 22)
-                        else:
-                            entities_list.extend([entities_index] * 15)
-                    count_entities = 28
+                    entities = feats[0]
+                    entities_uniq = OrderedDict((x, True) for x in entities).keys()
+                    entities_list = [entities_uniq.index(entity) for entity in entities]
+                    count_entities = len(entities_uniq)
+                    entities_len = [len(list(group)) for key, group in groupby(sorted(entities_list))]
                     assert len(entities_len) == len(set(entities_list))
                     example_dict = {side: words, "entities_list": entities_list, "entities_len": entities_len,
-                                    "count_entities": count_entities, "total_entities_list": entities_list,
+                                    "count_entities": count_entities,
                                     "indices": i}
                 else:    
                     example_dict = {side: words, "indices": i}
@@ -253,19 +249,6 @@ class TextDataset(ONMTDatasetBase):
         fields["count_entities"] = torchtext.data.Field(
             use_vocab=False, tensor_type=torch.LongTensor,
             sequential=False)
-
-        def make_total_entities(data, vocab, is_train):
-            src_size = max([t.size(0) for t in data])
-            entities_size = max([t.max() for t in data]) + 1
-            entities_mapping = torch.zeros(entities_size, len(data), src_size)
-            for i, sent in enumerate(data):
-                for j, t in enumerate(sent):
-                    entities_mapping[t, i, j] = 1
-            return entities_mapping
-
-        fields["total_entities_list"] = torchtext.data.Field(
-            use_vocab=False, tensor_type=torch.FloatTensor,
-            postprocessing=make_total_entities, sequential=False)
 
         fields["tgt"] = torchtext.data.Field(
             init_token=BOS_WORD, eos_token=EOS_WORD,
@@ -340,7 +323,6 @@ class TextDataset(ONMTDatasetBase):
 
             example["entities_list"] = torch.LongTensor(example["entities_list"])
             example["entities_len"] = torch.LongTensor(example["entities_len"])
-            example["total_entities_list"] = torch.LongTensor(example["total_entities_list"])
             if "tgt" in example:
                 tgt = example["tgt"]
                 mask = torch.LongTensor(
@@ -458,18 +440,14 @@ class ShardedTextCorpusIterator(object):
             line = line[:self.line_truncate]
         words, feats, n_feats = TextDataset.extract_text_features(line)
         if self.side == "src":
-            entities_len = [22] * 26
-            entities_len.extend([15, 15])
-            entities_list = []
-            for i in range(0, 28):
-                if i < 26:
-                    entities_list.extend([i] * 22)
-                else:
-                    entities_list.extend([i] * 15)
-            count_entities = 28
+            entities = feats[0]
+            entities_uniq = OrderedDict((x, True) for x in entities).keys()
+            entities_list = [entities_uniq.index(entity) for entity in entities]
+            count_entities = len(entities_uniq)
+            entities_len = [len(list(group)) for key, group in groupby(sorted(entities_list))]
             assert len(entities_len) == len(set(entities_list))
             example_dict = {self.side: words, "entities_list": entities_list, "entities_len": entities_len,
-                            "count_entities": count_entities, "total_entities_list": entities_list,
+                            "count_entities": count_entities,
                             "indices": index}
         else:
             example_dict = {self.side: words, "indices": index}

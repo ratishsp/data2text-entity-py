@@ -286,7 +286,7 @@ class Translator(object):
         memory_lengths = src_lengths.repeat(beam_size)
         dec_states.repeat_beam_size_times(beam_size)
         count_entities = var(batch.count_entities.data.repeat(beam_size))
-        total_entities_list = rvar(batch.total_entities_list.data)
+        total_entities_list = rvar(batch.entities_list.data)
 
         # (3) run the decoder to generate sentences, using beam search.
         for i in range(self.max_length):

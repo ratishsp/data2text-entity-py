@@ -143,12 +143,21 @@ class RNNEncoder(EncoderBase):
                                     hidden_size,
                                     num_layers)
 
-    def forward(self, src, lengths=None, encoder_state=None):
+    def forward(self, src, lengths=None, encoder_state=None, entities_list=None, entities_len=None):
         "See :obj:`EncoderBase.forward()`"
         self._check_args(src, lengths, encoder_state)
 
         emb = self.embeddings(src)
+        _, batch_ent, num_entities = entities_list.size()
+        s_len_entities, batch_len_ent = entities_len.size()
+        aeq(batch_len_ent, batch_ent)
+        aeq(num_entities, s_len_entities)
+        ent_emb = emb.unsqueeze(1).expand(-1, num_entities, -1, -1)
         s_len, batch, emb_dim = emb.size()
+        ent_dim = entities_list.transpose(1,2).unsqueeze(3).expand(-1, -1, -1, emb_dim)
+        ent_len_dim = entities_len.unsqueeze(2).expand(-1, -1, emb_dim)
+        ent_emb = (ent_emb*ent_dim).sum(0)
+        ent_emb = ent_emb/ent_len_dim
 
         packed_emb = emb
         if lengths is not None and not self.no_pack_padded_seq:
@@ -163,7 +172,7 @@ class RNNEncoder(EncoderBase):
 
         if self.use_bridge:
             encoder_final = self._bridge(encoder_final)
-        return encoder_final, memory_bank
+        return encoder_final, memory_bank, ent_emb
 
     def _initialize_bridge(self, rnn_type,
                            hidden_size,
@@ -383,7 +392,7 @@ class StdRNNDecoder(RNNDecoderBase):
     Implemented without input_feeding and currently with no `coverage_attn`
     or `copy_attn` support.
     """
-    def _run_forward_pass(self, tgt, memory_bank, state, memory_lengths=None):
+    def _run_forward_pass(self, tgt, memory_bank, entity_embeddings, state, memory_lengths=None, count_entities=None, total_entities_list=None):
         """
         Private helper for running the specific RNN forward pass.
         Must be overriden by all subclasses.
@@ -525,7 +534,7 @@ class InputFeedRNNDecoder(RNNDecoderBase):
                 entity_representation.transpose(0, 1),
                 memory_lengths=memory_lengths,
                 count_entities=count_entities,
-                total_entities_list=total_entities_list.transpose(0, 1))
+                total_entities_list=total_entities_list.transpose(0, 2).transpose(0, 1))
             if self.context_gate is not None:
                 # TODO: context gate should be employed
                 # instead of second RNN transform.
@@ -589,7 +598,7 @@ class NMTModel(nn.Module):
         self.encoder = encoder
         self.decoder = decoder
 
-    def forward(self, src, tgt, lengths, dec_state=None, entities_list=None, entities_len=None, count_entities=None, total_entities_list=None):
+    def forward(self, src, tgt, lengths, dec_state=None, entities_list=None, entities_len=None, count_entities=None):
         """Forward propagate a `src` and `tgt` pair for training.
         Possible initialized with a beginning decoder state.
 
@@ -626,7 +635,7 @@ class NMTModel(nn.Module):
                          else dec_state,
                          memory_lengths=lengths,
                          count_entities=count_entities,
-                         total_entities_list=total_entities_list)
+                         total_entities_list=entities_list)
         if self.multigpu:
             # Not yet supported on multi-gpu
             dec_state = None
