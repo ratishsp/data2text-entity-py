@@ -3,6 +3,25 @@
 
 This repo contains code for [Data-to-text Generation with Entity Modeling](https://www.aclweb.org/anthology/P19-1195) (Puduppully, R., Dong, L., & Lapata, M.; ACL 2019); this code is based on an earlier release (0.1) of [OpenNMT-py](https://github.com/OpenNMT/OpenNMT-py/tree/v0.1). The Pytorch version is 0.3.1.
 
+
+## Citation
+```
+@inproceedings{puduppully-etal-2019-data,
+    title = "Data-to-text Generation with Entity Modeling",
+    author = "Puduppully, Ratish  and
+      Dong, Li  and
+      Lapata, Mirella",
+    booktitle = "Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics",
+    month = jul,
+    year = "2019",
+    address = "Florence, Italy",
+    publisher = "Association for Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/P19-1195",
+    doi = "10.18653/v1/P19-1195",
+    pages = "2023--2035"
+}
+```
+
 ## Requirements
 
 All dependencies can be installed via:
